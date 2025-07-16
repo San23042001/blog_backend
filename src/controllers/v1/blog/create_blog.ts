@@ -1,20 +1,19 @@
-//Node Modules
-
 import DOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 
-//Custom modules
+// Custom modules
 import { logger } from '@/lib/winston';
 
-//Models
+// Models
 import Blog from '@/models/blog';
 
-//Types
+// Types
 import type { Request, Response } from 'express';
 import type { IBlog } from '@/models/blog';
 
 type BlogData = Pick<IBlog, 'title' | 'content' | 'banner' | 'status'>;
-//Purify the blog content
+
+// Purify the blog content
 const window = new JSDOM('').window;
 const purify = DOMPurify(window);
 
@@ -25,17 +24,26 @@ const createBlog = async (req: Request, res: Response): Promise<void> => {
 
     const cleanContent = purify.sanitize(content);
 
+    // Step 1: Create the blog
     const newBlog = await Blog.create({
       title,
-      content,
+      content: cleanContent,
       banner,
       status,
       author: userId,
     });
-    logger.info('New blog created', newBlog);
+
+    // Step 2: Populate the author field
+    const populatedBlog = await Blog.findById(newBlog._id)
+      .select('-__v -banner.publicId')
+      .populate('author', '-password -__v -createdAt -updatedAt')
+      .lean()
+      .exec();
+
+    logger.info('New blog created', populatedBlog);
 
     res.status(201).json({
-      blog: newBlog,
+      blog: populatedBlog,
     });
   } catch (err) {
     res.status(500).json({
