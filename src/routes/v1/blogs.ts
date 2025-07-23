@@ -18,8 +18,11 @@ import {
   getAllBlogsValidation,
   getBlogsBySlugValidation,
   getBlogsByUserValidation,
+  updateBlogsValidation,
 } from '@/utils/validators/blogValidators';
 import getBlogBySlug from '@/controllers/v1/blog/get_blog_by_slug';
+import { body } from 'express-validator';
+import updateBlog from '@/controllers/v1/blog/update_blog';
 
 const upload = multer();
 const router = Router();
@@ -61,5 +64,7 @@ router.get(
   validationError,
   getBlogBySlug,
 );
+
+router.put('/:blogId',authenticate,authorize(["admin"]),upload.single('banner_image'),updateBlogsValidation,validationError,uploadBlogBanner('put'),updateBlog)
 
 export default router;
