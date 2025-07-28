@@ -43,7 +43,7 @@ const getAllBlogs = async (req: Request, res: Response): Promise<void> => {
       .populate('author', '-createdAt -updatedAt -__v')
       .limit(limit)
       .skip(offset)
-      .sort({ createdAt: -1 })
+      // .sort({ createdAt: -1 })
       .lean()
       .exec();
 
