@@ -54,6 +54,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
 
     res.status(201).json({
       user: {
+        _id:newUser._id,
         username: newUser.username,
         email: newUser.email,
         role: newUser.role,

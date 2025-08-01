@@ -40,6 +40,7 @@ const likeBlog = async (req: Request, res: Response): Promise<void> => {
     });
 
     res.status(200).json({
+        blogId:blog._id,
         likesCount:blog.likesCount
     });
   } catch (err) {
